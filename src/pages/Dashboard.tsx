@@ -4,11 +4,12 @@ import AccountCard from '../components/AccountCard';
 import TransactionChart from '../components/TransactionChart';
 import RecentTransactions from '../components/RecentTransactions';
 import QuickActions from '../components/QuickActions';
+import type { Account } from '@/types';
 
-const Dashboard = () => {
+const Dashboard: React.FC = () => {
   const { user } = useAuth();
 
-  const mockAccounts = [
+  const mockAccounts: Account[] = [
     {
       id: 1,
       name: 'Checking Account',
@@ -35,6 +36,11 @@ const Dashboard = () => {
     }
   ];
 
+  const handleAccountClick = (account: Account): void => {
+    console.log('Account clicked:', account);
+    // TODO: Navigate to account details page
+  };
+
   return (
     <div className="p-6">
       <div className="mb-8">
@@ -47,7 +53,11 @@ const Dashboard = () => {
       {/* Account Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
         {mockAccounts.map((account) => (
-          <AccountCard key={account.id} account={account} />
+          <AccountCard 
+            key={account.id} 
+            account={account} 
+            onClick={handleAccountClick}
+          />
         ))}
       </div>
 

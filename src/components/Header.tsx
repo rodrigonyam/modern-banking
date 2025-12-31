@@ -2,8 +2,16 @@ import React from 'react';
 import { useAuth } from '../contexts/AuthContext';
 import { BellIcon, Cog6ToothIcon } from '@heroicons/react/24/outline';
 
-const Header = () => {
+const Header: React.FC = () => {
   const { user, logout } = useAuth();
+
+  const handleLogout = async (): Promise<void> => {
+    try {
+      await logout();
+    } catch (error) {
+      console.error('Logout failed:', error);
+    }
+  };
 
   return (
     <header className="bg-white shadow-sm border-b border-gray-200">
@@ -28,7 +36,7 @@ const Header = () => {
             <div>
               <p className="text-sm font-medium text-gray-900">{user?.name}</p>
               <button
-                onClick={logout}
+                onClick={handleLogout}
                 className="text-xs text-gray-500 hover:text-gray-700"
               >
                 Sign out

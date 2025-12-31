@@ -1,13 +1,19 @@
 import React from 'react';
 import { format } from 'date-fns';
+import type { Transaction } from '@/types';
 
-const RecentTransactions = () => {
-  const transactions = [
+interface RecentTransaction extends Omit<Transaction, 'id' | 'accountId' | 'status'> {
+  id: number;
+  type: 'credit' | 'debit';
+}
+
+const RecentTransactions: React.FC = () => {
+  const transactions: RecentTransaction[] = [
     {
       id: 1,
       description: 'Grocery Store',
       amount: -85.43,
-      date: new Date('2024-01-15'),
+      date: '2024-01-15',
       category: 'Food',
       type: 'debit'
     },
@@ -15,7 +21,7 @@ const RecentTransactions = () => {
       id: 2,
       description: 'Salary Deposit',
       amount: 3500.00,
-      date: new Date('2024-01-14'),
+      date: '2024-01-14',
       category: 'Income',
       type: 'credit'
     },
@@ -23,7 +29,7 @@ const RecentTransactions = () => {
       id: 3,
       description: 'Electric Bill',
       amount: -125.00,
-      date: new Date('2024-01-13'),
+      date: '2024-01-13',
       category: 'Utilities',
       type: 'debit'
     },
@@ -31,7 +37,7 @@ const RecentTransactions = () => {
       id: 4,
       description: 'Online Shopping',
       amount: -234.99,
-      date: new Date('2024-01-12'),
+      date: '2024-01-12',
       category: 'Shopping',
       type: 'debit'
     }
@@ -71,7 +77,7 @@ const RecentTransactions = () => {
                 {transaction.type === 'credit' ? '+' : '-'}${Math.abs(transaction.amount).toFixed(2)}
               </p>
               <p className="text-sm text-gray-500">
-                {format(transaction.date, 'MMM d')}
+                {format(new Date(transaction.date), 'MMM d')}
               </p>
             </div>
           </div>

@@ -2,10 +2,17 @@ import React from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ArrowUpTrayIcon, DocumentTextIcon, QrCodeIcon } from '@heroicons/react/24/outline';
 
-const QuickActions = () => {
+interface QuickAction {
+  name: string;
+  icon: React.ComponentType<{ className?: string }>;
+  action: () => void;
+  color: string;
+}
+
+const QuickActions: React.FC = () => {
   const navigate = useNavigate();
 
-  const actions = [
+  const actions: QuickAction[] = [
     {
       name: 'Transfer Money',
       icon: ArrowUpTrayIcon,

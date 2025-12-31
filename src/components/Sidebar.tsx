@@ -8,14 +8,20 @@ import {
   BanknotesIcon
 } from '@heroicons/react/24/outline';
 
-const navigation = [
+interface NavItem {
+  name: string;
+  href: string;
+  icon: React.ComponentType<{ className?: string }>;
+}
+
+const navigation: NavItem[] = [
   { name: 'Dashboard', href: '/dashboard', icon: HomeIcon },
   { name: 'Accounts', href: '/accounts', icon: CreditCardIcon },
   { name: 'Transactions', href: '/transactions', icon: ArrowTrendingUpIcon },
   { name: 'Transfer', href: '/transfer', icon: CurrencyDollarIcon },
 ];
 
-const Sidebar = () => {
+const Sidebar: React.FC = () => {
   return (
     <div className="w-64 bg-white shadow-lg">
       <div className="flex items-center justify-center h-16 bg-blue-600">

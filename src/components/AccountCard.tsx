@@ -1,8 +1,9 @@
 import React from 'react';
 import { CreditCardIcon, BanknotesIcon, ShieldCheckIcon } from '@heroicons/react/24/outline';
+import type { AccountCardProps, AccountType } from '@/types';
 
-const AccountCard = ({ account }) => {
-  const getAccountIcon = (type) => {
+const AccountCard: React.FC<AccountCardProps> = ({ account, onClick }) => {
+  const getAccountIcon = (type: AccountType) => {
     switch (type) {
       case 'checking':
         return CreditCardIcon;
@@ -18,8 +19,19 @@ const AccountCard = ({ account }) => {
   const Icon = getAccountIcon(account.type);
   const isNegative = account.balance < 0;
 
+  const handleClick = () => {
+    if (onClick) {
+      onClick(account);
+    }
+  };
+
   return (
-    <div className="bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow">
+    <div 
+      className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow ${
+        onClick ? 'cursor-pointer' : ''
+      }`}
+      onClick={handleClick}
+    >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
           <div className="p-2 bg-blue-100 rounded-lg">
@@ -40,7 +52,13 @@ const AccountCard = ({ account }) => {
       </div>
       
       <div className="mt-4 pt-4 border-t border-gray-200">
-        <button className="text-blue-600 hover:text-blue-700 text-sm font-medium">
+        <button 
+          className="text-blue-600 hover:text-blue-700 text-sm font-medium"
+          onClick={(e) => {
+            e.stopPropagation();
+            // Handle view details click
+          }}
+        >
           View Details →
         </button>
       </div>
