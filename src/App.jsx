@@ -8,7 +8,7 @@ import Accounts from './pages/Accounts';
 import Transactions from './pages/Transactions';
 import Transfer from './pages/Transfer';
 import Layout from './components/Layout';
-import './App.css';
+import './styles/App.css';
 
 function App() {
   return (
