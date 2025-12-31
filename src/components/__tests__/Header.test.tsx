@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
 import { BrowserRouter } from 'react-router-dom';
 import Header from '../Header';
@@ -24,10 +24,6 @@ const mockAuthContext = {
   clearError: vi.fn()
 };
 
-// Mock console.error to avoid noise in tests
-const mockConsoleError = vi.fn();
-vi.spyOn(console, 'error').mockImplementation(mockConsoleError);
-
 // Mock the AuthContext
 vi.mock('../../contexts/AuthContext', () => ({
   useAuth: () => mockAuthContext,
@@ -47,7 +43,6 @@ const renderHeader = () => {
 describe('Header', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mockConsoleError.mockClear();
   });
 
   afterEach(() => {
@@ -68,10 +63,10 @@ describe('Header', () => {
 
   it('renders notification and settings buttons', () => {
     renderHeader();
-    
-    const notificationButton = screen.getByRole('button', { name: /notification/i });
+
+    const notificationButton = screen.getByRole('button', { name: /notifications/i });
     const settingsButton = screen.getByRole('button', { name: /settings/i });
-    
+
     expect(notificationButton).toBeInTheDocument();
     expect(settingsButton).toBeInTheDocument();
   });
@@ -103,29 +98,38 @@ describe('Header', () => {
 
   it('handles logout error gracefully', async () => {
     const user = userEvent.setup();
+    const logoutError = new Error('Logout failed');
     
     // Mock logout to throw an error
-    mockAuthContext.logout.mockRejectedValueOnce(new Error('Logout failed'));
+    mockAuthContext.logout.mockRejectedValueOnce(logoutError);
+    
+    // Mock console.error for this specific test
+    const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
     
     renderHeader();
     
     const signOutButton = screen.getByText('Sign out');
     await user.click(signOutButton);
     
-    expect(mockAuthContext.logout).toHaveBeenCalledOnce();
-    expect(mockConsoleError).toHaveBeenCalledWith('Logout failed:', expect.any(Error));
+    // Wait for the async operation to complete
+    await waitFor(() => {
+      expect(mockAuthContext.logout).toHaveBeenCalledOnce();
+      expect(consoleSpy).toHaveBeenCalledWith('Logout failed:', logoutError);
+    });
+    
+    consoleSpy.mockRestore();
   });
 
   it('renders notification button with proper styling', () => {
     renderHeader();
-    
-    const notificationButton = screen.getByRole('button', { name: /notification/i });
+
+    const notificationButton = screen.getByRole('button', { name: /notifications/i });
     expect(notificationButton).toHaveClass('p-2', 'text-gray-400', 'hover:text-gray-600', 'transition-colors');
   });
 
   it('renders settings button with proper styling', () => {
     renderHeader();
-    
+
     const settingsButton = screen.getByRole('button', { name: /settings/i });
     expect(settingsButton).toHaveClass('p-2', 'text-gray-400', 'hover:text-gray-600', 'transition-colors');
   });
@@ -148,18 +152,16 @@ describe('Header', () => {
   });
 
   it('handles user with different name initial', () => {
-    const mockAuthContextWithDifferentUser = {
-      ...mockAuthContext,
-      user: { ...mockUser, name: 'Alice Smith' }
-    };
-
-    vi.doMock('../../contexts/AuthContext', () => ({
-      useAuth: () => mockAuthContextWithDifferentUser,
-      AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
-    }));
-
-    renderHeader();
+    // Update the mock context before rendering
+    mockAuthContext.user = { name: 'Alice Smith', email: 'alice@example.com' };
     
+    render(
+      <BrowserRouter>
+        <AuthProvider value={mockAuthContext}>
+          <Header />
+        </AuthProvider>
+      </BrowserRouter>
+    );
     expect(screen.getByText('A')).toBeInTheDocument();
     expect(screen.getByText('Alice Smith')).toBeInTheDocument();
   });

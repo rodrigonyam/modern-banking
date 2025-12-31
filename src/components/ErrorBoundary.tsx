@@ -46,12 +46,13 @@ class ErrorBoundary extends React.Component {
                 </summary>
                 <div className="text-sm text-gray-700 space-y-2">
                   <div>
-                    <strong>Error:</strong> {this.state.error && this.state.error.toString()}
+                    <strong>Error:</strong>
+                    <div className="mt-1">{this.state.error && this.state.error.toString()}</div>
                   </div>
                   <div>
                     <strong>Component Stack:</strong>
                     <pre className="mt-1 text-xs whitespace-pre-wrap">
-                      {this.state.errorInfo.componentStack}
+                      {this.state.errorInfo?.componentStack || 'No component stack available'}
                     </pre>
                   </div>
                 </div>

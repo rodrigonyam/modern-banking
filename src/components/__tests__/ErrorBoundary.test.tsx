@@ -150,8 +150,10 @@ describe('ErrorBoundary', () => {
     const detailsButton = screen.getByText('Error Details (Development Only)');
     expect(detailsButton).toBeInTheDocument();
     
-    const errorText = screen.getByText(/Error:/);
-    expect(errorText).toBeInTheDocument();
+    // Use getAllByText to handle multiple "Error:" elements
+    const errorTexts = screen.getAllByText(/Error:/);
+    expect(errorTexts.length).toBeGreaterThan(0);
+    expect(screen.getByText(/Custom test error/)).toBeInTheDocument();
   });
 
   it('hides error details in production environment', () => {
@@ -189,10 +191,10 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    const container = screen.getByText('Something went wrong').closest('div')?.parentElement?.parentElement;
+    const container = screen.getByText('Something went wrong').closest('div.min-h-screen');
     expect(container).toHaveClass('min-h-screen', 'flex', 'items-center', 'justify-center', 'bg-gray-50');
 
-    const card = screen.getByText('Something went wrong').closest('div');
+    const card = screen.getByText('Something went wrong').closest('div.bg-white');
     expect(card).toHaveClass('max-w-md', 'w-full', 'bg-white', 'shadow-lg', 'rounded-lg', 'p-8', 'text-center');
   });
 

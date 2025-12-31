@@ -21,10 +21,16 @@ const Header: React.FC = () => {
         </div>
         
         <div className="flex items-center space-x-4">
-          <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+          <button 
+            className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+            aria-label="Notifications"
+          >
             <BellIcon className="h-6 w-6" />
           </button>
-          <button className="p-2 text-gray-400 hover:text-gray-600 transition-colors">
+          <button 
+            className="p-2 text-gray-400 hover:text-gray-600 transition-colors"
+            aria-label="Settings"
+          >
             <Cog6ToothIcon className="h-6 w-6" />
           </button>
           <div className="flex items-center space-x-3">
