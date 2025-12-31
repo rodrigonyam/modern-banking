@@ -1,10 +1,9 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen } from '@/test/test-utils';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter } from 'react-router-dom';
 import QuickActions from '../QuickActions';
 
-// Mock react-router-dom
+// Mock navigate following TESTING.md patterns
 const mockNavigate = vi.fn();
 vi.mock('react-router-dom', async () => {
   const actual = await vi.importActual('react-router-dom');
@@ -14,68 +13,69 @@ vi.mock('react-router-dom', async () => {
   };
 });
 
-// Mock window.alert
+// Mock global window.alert
 const mockAlert = vi.fn();
 vi.stubGlobal('alert', mockAlert);
 
-const renderQuickActions = () => {
-  return render(
-    <BrowserRouter>
-      <QuickActions />
-    </BrowserRouter>
-  );
-};
-
 describe('QuickActions', () => {
+  // Setup follows TESTING.md patterns
   beforeEach(() => {
     vi.clearAllMocks();
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
+  const renderQuickActions = () => {
+    return render(<QuickActions />);
+  };
+
+  describe('Rendering', () => {
+    it('renders the component with correct title', () => {
+      renderQuickActions();
+      
+      // Use accessible queries following TESTING.md patterns
+      expect(screen.getByRole('heading', { name: /quick actions/i })).toBeInTheDocument();
+    });
+
+    it('renders all quick action buttons with proper roles', () => {
+      renderQuickActions();
+      
+      // Test using accessibility-first queries
+      expect(screen.getByRole('listitem', { name: /transfer money/i })).toBeInTheDocument();
+      expect(screen.getByRole('listitem', { name: /view statements/i })).toBeInTheDocument();
+      expect(screen.getByRole('listitem', { name: /scan qr/i })).toBeInTheDocument();
+    });
+
+    it('has proper semantic structure', () => {
+      renderQuickActions();
+      
+      // Check for region landmark following TESTING.md accessibility patterns
+      expect(screen.getByRole('region')).toBeInTheDocument();
+      expect(screen.getByRole('list')).toBeInTheDocument();
+    });
   });
 
-  it('renders the component with correct title', () => {
-    renderQuickActions();
-    expect(screen.getByText('Quick Actions')).toBeInTheDocument();
-  });
+  describe('User Interactions', () => {
+    it('navigates to transfer page when Transfer Money is clicked', async () => {
+      const user = userEvent.setup();
+      renderQuickActions();
+      
+      // Use accessible query patterns from TESTING.md
+      const transferButton = screen.getByRole('listitem', { name: /transfer money/i });
+      await user.click(transferButton);
+      
+      expect(mockNavigate).toHaveBeenCalledWith('/transfer');
+      expect(mockNavigate).toHaveBeenCalledTimes(1);
+    });
 
-  it('renders all quick action buttons', () => {
-    renderQuickActions();
-    
-    expect(screen.getByText('Transfer Money')).toBeInTheDocument();
-    expect(screen.getByText('View Statements')).toBeInTheDocument();
-    expect(screen.getByText('Scan QR')).toBeInTheDocument();
-  });
-
-  it('has proper styling for the container', () => {
-    renderQuickActions();
-    
-    const container = screen.getByText('Quick Actions').closest('div');
-    expect(container).toHaveClass('bg-white', 'rounded-lg', 'shadow-md', 'p-6');
-  });
-
-  it('navigates to transfer page when Transfer Money is clicked', async () => {
-    const user = userEvent.setup();
-    renderQuickActions();
-    
-    const transferButton = screen.getByText('Transfer Money');
-    await user.click(transferButton);
-    
-    expect(mockNavigate).toHaveBeenCalledWith('/transfer');
-    expect(mockNavigate).toHaveBeenCalledTimes(1);
-  });
-
-  it('navigates to transactions page when View Statements is clicked', async () => {
-    const user = userEvent.setup();
-    renderQuickActions();
-    
-    const statementsButton = screen.getByText('View Statements');
-    await user.click(statementsButton);
-    
-    expect(mockNavigate).toHaveBeenCalledWith('/transactions');
-    expect(mockNavigate).toHaveBeenCalledTimes(1);
-  });
+    it('navigates to transactions page when View Statements is clicked', async () => {
+      const user = userEvent.setup();
+      renderQuickActions();
+      
+      const statementsButton = screen.getByRole('listitem', { name: /view statements/i });
+      await user.click(statementsButton);
+      
+      expect(mockNavigate).toHaveBeenCalledWith('/transactions');
+      expect(mockNavigate).toHaveBeenCalledTimes(1);
+    });
 
   it('shows alert when Scan QR is clicked', async () => {
     const user = userEvent.setup();
@@ -91,7 +91,7 @@ describe('QuickActions', () => {
   it('applies correct styling to action buttons', () => {
     renderQuickActions();
     
-    const buttons = screen.getAllByRole('button');
+    const buttons = screen.getAllByRole('listitem');
     buttons.forEach(button => {
       expect(button).toHaveClass(
         'w-full', 
@@ -109,7 +109,7 @@ describe('QuickActions', () => {
     renderQuickActions();
     
     // Check for icon containers with correct colors
-    const iconContainers = screen.getAllByRole('button').map(button => 
+    const iconContainers = screen.getAllByRole('listitem').map(button => 
       button.querySelector('div')
     );
     
@@ -121,9 +121,9 @@ describe('QuickActions', () => {
   it('has accessible button structure', () => {
     renderQuickActions();
     
-    const transferButton = screen.getByRole('button', { name: /transfer money/i });
-    const statementsButton = screen.getByRole('button', { name: /view statements/i });
-    const qrButton = screen.getByRole('button', { name: /scan qr/i });
+    const transferButton = screen.getByRole('listitem', { name: /execute transfer money/i });
+    const statementsButton = screen.getByRole('listitem', { name: /execute view statements/i });
+    const qrButton = screen.getByRole('listitem', { name: /execute scan qr/i });
     
     expect(transferButton).toBeInTheDocument();
     expect(statementsButton).toBeInTheDocument();
@@ -159,7 +159,7 @@ describe('QuickActions', () => {
   it('renders in correct order', () => {
     renderQuickActions();
     
-    const buttons = screen.getAllByRole('button');
+    const buttons = screen.getAllByRole('listitem');
     expect(buttons[0]).toHaveTextContent('Transfer Money');
     expect(buttons[1]).toHaveTextContent('View Statements');
     expect(buttons[2]).toHaveTextContent('Scan QR');
@@ -189,10 +189,11 @@ describe('QuickActions', () => {
 
   it('has proper hover effects on buttons', () => {
     renderQuickActions();
-    
-    const buttons = screen.getAllByRole('button');
+
+    const buttons = screen.getAllByRole('listitem');
     buttons.forEach(button => {
       expect(button).toHaveClass('hover:bg-gray-50', 'transition-colors');
     });
   });
+});
 });

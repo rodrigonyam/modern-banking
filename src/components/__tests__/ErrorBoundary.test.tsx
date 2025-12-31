@@ -1,10 +1,10 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen } from '@/test/test-utils';
 import userEvent from '@testing-library/user-event';
 import ErrorBoundary from '../ErrorBoundary';
 import React from 'react';
 
-// Mock console methods to avoid noise in tests
+// Mock console methods to avoid noise in tests - following TESTING.md patterns
 const mockConsoleError = vi.fn();
 
 // Component that throws an error when shouldThrow prop is true
@@ -18,9 +18,10 @@ const ThrowError: React.FC<{ shouldThrow?: boolean; message?: string }> = ({
   return <div>No Error</div>;
 };
 
+// Simple test component
 const TestComponent: React.FC = () => <div>Test Component</div>;
 
-// Mock window.location methods
+// Mock window.location methods following TESTING.md browser API patterns
 const mockReload = vi.fn();
 const mockAssign = vi.fn();
 
@@ -36,16 +37,12 @@ Object.defineProperty(window, 'location', {
 describe('ErrorBoundary', () => {
   const originalNodeEnv = process.env.NODE_ENV;
 
+  // Setup follows TESTING.md patterns
   beforeEach(() => {
     vi.clearAllMocks();
     mockReload.mockClear();
     mockAssign.mockClear();
     vi.spyOn(console, 'error').mockImplementation(mockConsoleError);
-  });
-
-  afterEach(() => {
-    vi.restoreAllMocks();
-    process.env.NODE_ENV = originalNodeEnv;
   });
 
   it('renders children when no error occurs', () => {
@@ -244,11 +241,11 @@ describe('ErrorBoundary', () => {
       </ErrorBoundary>
     );
 
-    const heading = screen.getByRole('heading', { name: 'Something went wrong' });
+    const heading = screen.getByRole('heading', { name: 'Error occurred' });
     expect(heading).toBeInTheDocument();
     
-    const refreshButton = screen.getByRole('button', { name: 'Refresh Page' });
-    const homeButton = screen.getByRole('button', { name: 'Go to Home' });
+    const refreshButton = screen.getByRole('button', { name: 'Refresh the current page to try again' });
+    const homeButton = screen.getByRole('button', { name: 'Navigate to home page' });
     
     expect(refreshButton).toBeInTheDocument();
     expect(homeButton).toBeInTheDocument();

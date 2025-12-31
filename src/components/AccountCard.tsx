@@ -49,17 +49,31 @@ const AccountCard: React.FC<AccountCardProps> = ({ account, onClick }) => {
             <Icon className="h-6 w-6 text-blue-600" />
           </div>
           <div className="ml-3">
-            <h3 className="text-lg font-semibold text-gray-900">{account.name}</h3>
-            <p className="text-sm text-gray-500">{account.accountNumber}</p>
+            <h3 
+              className="text-lg font-semibold text-gray-900"
+              id={`account-${account.accountNumber}`}
+              aria-label={`Account name: ${account.name}`}
+            >
+              {account.name}
+            </h3>
+            <p 
+              className="text-sm text-gray-500"
+              aria-label={`Account number: ${account.accountNumber}`}
+            >
+              {account.accountNumber}
+            </p>
           </div>
         </div>
       </div>
       
       <div className="mt-4">
-        <p className="text-2xl font-bold text-gray-900">
+        <p 
+          className="text-2xl font-bold text-gray-900"
+          aria-label={`Account balance: ${isNegative ? 'negative ' : ''}$${Math.abs(account.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}`}
+        >
           {isNegative ? '-' : ''}${Math.abs(account.balance).toLocaleString('en-US', { minimumFractionDigits: 2 })}
         </p>
-        <p className="text-sm text-gray-500 mt-1">Available balance</p>
+        <p className="text-sm text-gray-500 mt-1" aria-label="Balance type">Available balance</p>
       </div>
       
       <div className="mt-4 pt-4 border-t border-gray-200">
@@ -69,6 +83,8 @@ const AccountCard: React.FC<AccountCardProps> = ({ account, onClick }) => {
             e.stopPropagation();
             // Handle view details click
           }}
+          aria-label={`View detailed information for ${account.name}`}
+          aria-describedby={`account-${account.accountNumber}`}
         >
           View Details →
         </button>

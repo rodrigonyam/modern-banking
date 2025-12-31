@@ -1,53 +1,58 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
-import { render, screen, waitFor } from '@testing-library/react';
+import { describe, it, expect, vi, beforeEach } from 'vitest';
+import { render, screen, waitFor } from '@/test/test-utils';
 import userEvent from '@testing-library/user-event';
-import { BrowserRouter } from 'react-router-dom';
 import Header from '../Header';
-import { AuthProvider } from '../../contexts/AuthContext';
+
 import type { User } from '@/types';
 
-// Mock the auth context
-const mockUser: User = {
-  id: 1,
-  username: 'testuser',
-  name: 'John Doe',
-  email: 'john.doe@example.com'
-};
-
-const mockAuthContext = {
-  user: mockUser,
-  isAuthenticated: true,
-  isLoading: false,
-  error: null,
-  login: vi.fn(),
-  logout: vi.fn(),
-  clearError: vi.fn()
-};
-
-// Mock the AuthContext
+// Mock auth using TESTING.md mock patterns
 vi.mock('../../contexts/AuthContext', () => ({
-  useAuth: () => mockAuthContext,
+  useAuth: () => ({
+    user: {
+      id: 1,
+      username: 'testuser',
+      name: 'John Doe',
+      email: 'john.doe@example.com'
+    },
+    isAuthenticated: true,
+    isLoading: false,
+    error: null,
+    login: vi.fn(),
+    logout: vi.fn(),
+    clearError: vi.fn()
+  }),
   AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
 }));
 
-const renderHeader = () => {
-  return render(
-    <BrowserRouter>
-      <AuthProvider>
-        <Header />
-      </AuthProvider>
-    </BrowserRouter>
-  );
-};
-
 describe('Header', () => {
+  // Mock data following TESTING.md patterns
+  const mockUser = {
+    id: 1,
+    username: 'testuser',
+    name: 'John Doe',
+    email: 'john.doe@example.com'
+  };
+
+  const mockAuthContext = {
+    user: mockUser,
+    isAuthenticated: true,
+    isLoading: false,
+    error: null,
+    login: vi.fn(),
+    logout: vi.fn(),
+    clearError: vi.fn()
+  };
+
+  // Setup follows TESTING.md patterns
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset mock implementations
+    mockAuthContext.logout.mockResolvedValue(undefined);
   });
 
-  afterEach(() => {
-    vi.restoreAllMocks();
-  });
+  const renderHeader = () => {
+    return render(<Header />);
+  };
 
   it('renders the app title', () => {
     renderHeader();

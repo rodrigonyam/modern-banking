@@ -1,9 +1,35 @@
 import { ReactElement } from 'react';
 import { render, RenderOptions } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
+import { vi } from 'vitest';
+import type { User } from '@/types';
+
+// Mock contexts
+vi.mock('../contexts/NotificationContext', () => ({
+  useNotification: () => ({
+    addNotification: vi.fn(),
+    removeNotification: vi.fn(),
+    clearAllNotifications: vi.fn(),
+    notifications: []
+  }),
+  NotificationProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
+}));
+
+vi.mock('../contexts/AuthContext', () => ({
+  useAuth: () => ({
+    user: null,
+    isAuthenticated: false,
+    isLoading: false,
+    error: null,
+    login: vi.fn(),
+    logout: vi.fn(),
+    clearError: vi.fn()
+  }),
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
+}));
+
 import { AuthProvider } from '../contexts/AuthContext';
 import { NotificationProvider } from '../contexts/NotificationContext';
-import type { User } from '@/types';
 
 // Mock user data for testing
 export const mockUser: User = {

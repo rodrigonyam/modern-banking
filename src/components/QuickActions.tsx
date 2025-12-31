@@ -34,16 +34,21 @@ const QuickActions: React.FC = () => {
   ];
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-6">
-      <h3 className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
-      <div className="space-y-3">
+    <div className="bg-white rounded-lg shadow-md p-6" role="region" aria-labelledby="quick-actions-heading">
+      <h3 id="quick-actions-heading" className="text-lg font-semibold text-gray-900 mb-4">Quick Actions</h3>
+      <div className="space-y-3" role="list" aria-label="Available quick actions">
         {actions.map((action) => (
           <button
             key={action.name}
             onClick={action.action}
             className="w-full flex items-center p-3 rounded-lg hover:bg-gray-50 transition-colors"
+            aria-label={`Execute ${action.name}`}
+            role="listitem"
           >
-            <div className={`p-2 ${action.color} rounded-lg`}>
+            <div 
+              className={`p-2 ${action.color} rounded-lg`}
+              aria-hidden="true"
+            >
               <action.icon className="h-5 w-5 text-white" />
             </div>
             <span className="ml-3 text-gray-900 font-medium">{action.name}</span>
