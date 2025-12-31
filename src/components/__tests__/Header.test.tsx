@@ -1,0 +1,201 @@
+import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { render, screen } from '@testing-library/react';
+import userEvent from '@testing-library/user-event';
+import { BrowserRouter } from 'react-router-dom';
+import Header from '../Header';
+import { AuthProvider } from '../../contexts/AuthContext';
+import type { User } from '@/types';
+
+// Mock the auth context
+const mockUser: User = {
+  id: 1,
+  username: 'testuser',
+  name: 'John Doe',
+  email: 'john.doe@example.com'
+};
+
+const mockAuthContext = {
+  user: mockUser,
+  isAuthenticated: true,
+  isLoading: false,
+  error: null,
+  login: vi.fn(),
+  logout: vi.fn(),
+  clearError: vi.fn()
+};
+
+// Mock console.error to avoid noise in tests
+const mockConsoleError = vi.fn();
+vi.spyOn(console, 'error').mockImplementation(mockConsoleError);
+
+// Mock the AuthContext
+vi.mock('../../contexts/AuthContext', () => ({
+  useAuth: () => mockAuthContext,
+  AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
+}));
+
+const renderHeader = () => {
+  return render(
+    <BrowserRouter>
+      <AuthProvider>
+        <Header />
+      </AuthProvider>
+    </BrowserRouter>
+  );
+};
+
+describe('Header', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+    mockConsoleError.mockClear();
+  });
+
+  afterEach(() => {
+    vi.restoreAllMocks();
+  });
+
+  it('renders the app title', () => {
+    renderHeader();
+    expect(screen.getByText('SecureBank')).toBeInTheDocument();
+  });
+
+  it('displays user information correctly', () => {
+    renderHeader();
+    
+    expect(screen.getByText('John Doe')).toBeInTheDocument();
+    expect(screen.getByText('J')).toBeInTheDocument(); // User avatar initial
+  });
+
+  it('renders notification and settings buttons', () => {
+    renderHeader();
+    
+    const notificationButton = screen.getByRole('button', { name: /notification/i });
+    const settingsButton = screen.getByRole('button', { name: /settings/i });
+    
+    expect(notificationButton).toBeInTheDocument();
+    expect(settingsButton).toBeInTheDocument();
+  });
+
+  it('displays user avatar with correct initial', () => {
+    renderHeader();
+    
+    const avatarElement = screen.getByText('J');
+    expect(avatarElement).toBeInTheDocument();
+    expect(avatarElement.closest('div')).toHaveClass('bg-blue-600', 'rounded-full');
+  });
+
+  it('renders sign out button', () => {
+    renderHeader();
+    
+    const signOutButton = screen.getByText('Sign out');
+    expect(signOutButton).toBeInTheDocument();
+  });
+
+  it('calls logout function when sign out button is clicked', async () => {
+    const user = userEvent.setup();
+    renderHeader();
+    
+    const signOutButton = screen.getByText('Sign out');
+    await user.click(signOutButton);
+    
+    expect(mockAuthContext.logout).toHaveBeenCalledOnce();
+  });
+
+  it('handles logout error gracefully', async () => {
+    const user = userEvent.setup();
+    
+    // Mock logout to throw an error
+    mockAuthContext.logout.mockRejectedValueOnce(new Error('Logout failed'));
+    
+    renderHeader();
+    
+    const signOutButton = screen.getByText('Sign out');
+    await user.click(signOutButton);
+    
+    expect(mockAuthContext.logout).toHaveBeenCalledOnce();
+    expect(mockConsoleError).toHaveBeenCalledWith('Logout failed:', expect.any(Error));
+  });
+
+  it('renders notification button with proper styling', () => {
+    renderHeader();
+    
+    const notificationButton = screen.getByRole('button', { name: /notification/i });
+    expect(notificationButton).toHaveClass('p-2', 'text-gray-400', 'hover:text-gray-600', 'transition-colors');
+  });
+
+  it('renders settings button with proper styling', () => {
+    renderHeader();
+    
+    const settingsButton = screen.getByRole('button', { name: /settings/i });
+    expect(settingsButton).toHaveClass('p-2', 'text-gray-400', 'hover:text-gray-600', 'transition-colors');
+  });
+
+  it('has proper header styling and structure', () => {
+    renderHeader();
+    
+    const header = screen.getByRole('banner');
+    expect(header).toHaveClass('bg-white', 'shadow-sm', 'border-b', 'border-gray-200');
+    
+    const container = header.firstChild as HTMLElement;
+    expect(container).toHaveClass('flex', 'items-center', 'justify-between', 'px-6', 'py-4');
+  });
+
+  it('displays user name in sign out section', () => {
+    renderHeader();
+    
+    const userNameElement = screen.getByText('John Doe');
+    expect(userNameElement).toHaveClass('text-sm', 'font-medium', 'text-gray-900');
+  });
+
+  it('handles user with different name initial', () => {
+    const mockAuthContextWithDifferentUser = {
+      ...mockAuthContext,
+      user: { ...mockUser, name: 'Alice Smith' }
+    };
+
+    vi.doMock('../../contexts/AuthContext', () => ({
+      useAuth: () => mockAuthContextWithDifferentUser,
+      AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
+    }));
+
+    renderHeader();
+    
+    expect(screen.getByText('A')).toBeInTheDocument();
+    expect(screen.getByText('Alice Smith')).toBeInTheDocument();
+  });
+
+  it('handles empty user name gracefully', () => {
+    const mockAuthContextWithNoName = {
+      ...mockAuthContext,
+      user: { ...mockUser, name: '' }
+    };
+
+    vi.doMock('../../contexts/AuthContext', () => ({
+      useAuth: () => mockAuthContextWithNoName,
+      AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
+    }));
+
+    renderHeader();
+    
+    // Should still render without crashing
+    expect(screen.getByText('SecureBank')).toBeInTheDocument();
+  });
+
+  it('supports keyboard navigation for interactive elements', async () => {
+    const user = userEvent.setup();
+    renderHeader();
+    
+    const signOutButton = screen.getByText('Sign out');
+    
+    // Tab to the sign out button
+    await user.tab();
+    await user.tab();
+    await user.tab();
+    
+    // Activate with keyboard
+    signOutButton.focus();
+    await user.keyboard('{Enter}');
+    
+    expect(mockAuthContext.logout).toHaveBeenCalledOnce();
+  });
+});

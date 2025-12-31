@@ -31,6 +31,8 @@ const AccountCard: React.FC<AccountCardProps> = ({ account, onClick }) => {
         onClick ? 'cursor-pointer' : ''
       }`}
       onClick={handleClick}
+      role={onClick ? "button" : undefined}
+      tabIndex={onClick ? 0 : undefined}
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">
