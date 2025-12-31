@@ -25,14 +25,23 @@ const AccountCard: React.FC<AccountCardProps> = ({ account, onClick }) => {
     }
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    if (onClick && (event.key === 'Enter' || event.key === ' ')) {
+      event.preventDefault();
+      handleClick();
+    }
+  };
+
   return (
     <div 
       className={`bg-white rounded-lg shadow-md p-6 hover:shadow-lg transition-shadow ${
         onClick ? 'cursor-pointer' : ''
       }`}
       onClick={handleClick}
+      onKeyDown={handleKeyDown}
       role={onClick ? "button" : undefined}
       tabIndex={onClick ? 0 : undefined}
+      aria-label={onClick ? `View details for ${account.name} account` : undefined}
     >
       <div className="flex items-center justify-between mb-4">
         <div className="flex items-center">

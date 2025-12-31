@@ -76,7 +76,8 @@ describe('AccountCard', () => {
     const handleClick = vi.fn();
     render(<AccountCard account={mockAccount} onClick={handleClick} />);
 
-    const card = screen.getByRole('button');
+    // The main card container should have button role when clickable
+    const card = screen.getByRole('button', { name: /view details for main checking account/i });
     expect(card).toHaveClass('cursor-pointer');
     expect(card).toHaveAttribute('tabIndex', '0');
   });
@@ -94,7 +95,8 @@ describe('AccountCard', () => {
 
     render(<AccountCard account={mockAccount} onClick={handleClick} />);
 
-    const card = screen.getByRole('button');
+    // Click the main card, not the "View Details" button
+    const card = screen.getByRole('button', { name: /view details for main checking account/i });
     await user.click(card);
 
     expect(handleClick).toHaveBeenCalledOnce();
@@ -119,7 +121,7 @@ describe('AccountCard', () => {
 
     render(<AccountCard account={mockAccount} onClick={handleClick} />);
 
-    const card = screen.getByRole('button');
+    const card = screen.getByRole('button', { name: /view details for main checking account/i });
     card.focus();
     await user.keyboard('{Enter}');
 
@@ -130,50 +132,18 @@ describe('AccountCard', () => {
   it('applies hover effects correctly', () => {
     render(<AccountCard account={mockAccount} />);
 
-    const card = screen.getByText('Main Checking').closest('div');
-    expect(card).toHaveClass('hover:shadow-lg', 'transition-shadow');
+    // Find the main card container by looking for a div that contains the account name
+    const cardContainer = screen.getByText('Main Checking').closest('div.bg-white');
+    expect(cardContainer).toHaveClass('hover:shadow-lg');
+    expect(cardContainer).toHaveClass('transition-shadow');
   });
 
   it('has proper accessibility attributes when clickable', () => {
     const handleClick = vi.fn();
     render(<AccountCard account={mockAccount} onClick={handleClick} />);
 
-    const card = screen.getByRole('button');
+    const card = screen.getByRole('button', { name: /view details for main checking account/i });
     expect(card).toBeInTheDocument();
     expect(card).toHaveAttribute('tabIndex', '0');
-  });
-});
-    render(<AccountCard account={mockAccount} />);
-    
-    const card = screen.getByText('Test Account').closest('div');
-    expect(card).not.toHaveClass('cursor-pointer');
-  });
-
-  it('shows cursor pointer when onClick is provided', () => {
-    render(<AccountCard account={mockAccount} onClick={mockOnClick} />);
-    
-    const card = screen.getByRole('button');
-    expect(card).toHaveClass('cursor-pointer');
-  });
-
-  describe('Different Account Types', () => {
-    it('renders savings account correctly', () => {
-      const savingsAccount = createMockAccount({ type: 'savings', name: 'Savings Account' });
-      render(<AccountCard account={savingsAccount} />);
-      
-      expect(screen.getByText('Savings Account')).toBeInTheDocument();
-    });
-
-    it('renders credit account correctly', () => {
-      const creditAccount = createMockAccount({ 
-        type: 'credit', 
-        name: 'Credit Card',
-        balance: -1234.56 
-      });
-      render(<AccountCard account={creditAccount} />);
-      
-      expect(screen.getByText('Credit Card')).toBeInTheDocument();
-      expect(screen.getByText('-$1,234.56')).toBeInTheDocument();
-    });
   });
 });

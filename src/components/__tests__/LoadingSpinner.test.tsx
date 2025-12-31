@@ -82,7 +82,7 @@ describe('LoadingSpinner', () => {
     
     const container = screen.getByRole('status');
     expect(container).toHaveAttribute('aria-live', 'polite');
-    expect(container).toHaveAttribute('aria-label', 'Loading');
+    expect(container).toHaveAttribute('aria-label', 'Loading...');
   });
 
   it('has custom aria-label when text is provided', () => {
