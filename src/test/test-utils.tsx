@@ -10,6 +10,10 @@ vi.mock('../contexts/NotificationContext', () => ({
     addNotification: vi.fn(),
     removeNotification: vi.fn(),
     clearAllNotifications: vi.fn(),
+    showError: vi.fn(),
+    showSuccess: vi.fn(),
+    showWarning: vi.fn(),
+    showInfo: vi.fn(),
     notifications: []
   }),
   NotificationProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
@@ -19,7 +23,7 @@ vi.mock('../contexts/AuthContext', () => ({
   useAuth: () => ({
     user: null,
     isAuthenticated: false,
-    isLoading: false,
+    loading: false,
     error: null,
     login: vi.fn(),
     logout: vi.fn(),

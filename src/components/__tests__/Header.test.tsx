@@ -1,53 +1,51 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, waitFor } from '@/test/test-utils';
+import { BrowserRouter } from 'react-router-dom';
 import userEvent from '@testing-library/user-event';
 import Header from '../Header';
 
 import type { User } from '@/types';
 
-// Mock auth using TESTING.md mock patterns
+// Create mock functions that will be shared across tests
+const mockLogout = vi.fn();
+const mockLogin = vi.fn();
+const mockClearError = vi.fn();
+
+// Create a mock user object
+const mockUser = {
+  id: 1,
+  username: 'testuser',
+  name: 'John Doe',
+  email: 'john.doe@example.com'
+};
+
+// Create the mock auth context return value
+const createMockAuthContext = (user = mockUser) => ({
+  user,
+  isAuthenticated: true,
+  isLoading: false,
+  error: null,
+  login: mockLogin,
+  logout: mockLogout,
+  clearError: mockClearError
+});
+
+// Mock the useAuth hook
+const mockUseAuth = vi.fn();
 vi.mock('../../contexts/AuthContext', () => ({
-  useAuth: () => ({
-    user: {
-      id: 1,
-      username: 'testuser',
-      name: 'John Doe',
-      email: 'john.doe@example.com'
-    },
-    isAuthenticated: true,
-    isLoading: false,
-    error: null,
-    login: vi.fn(),
-    logout: vi.fn(),
-    clearError: vi.fn()
-  }),
+  useAuth: mockUseAuth,
   AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
 }));
 
 describe('Header', () => {
-  // Mock data following TESTING.md patterns
-  const mockUser = {
-    id: 1,
-    username: 'testuser',
-    name: 'John Doe',
-    email: 'john.doe@example.com'
-  };
-
-  const mockAuthContext = {
-    user: mockUser,
-    isAuthenticated: true,
-    isLoading: false,
-    error: null,
-    login: vi.fn(),
-    logout: vi.fn(),
-    clearError: vi.fn()
-  };
 
   // Setup follows TESTING.md patterns
   beforeEach(() => {
     vi.clearAllMocks();
+    // Set up the default mock return value
+    mockUseAuth.mockReturnValue(createMockAuthContext());
     // Reset mock implementations
-    mockAuthContext.logout.mockResolvedValue(undefined);
+    mockLogout.mockResolvedValue(undefined);
   });
 
   const renderHeader = () => {
@@ -97,8 +95,8 @@ describe('Header', () => {
     
     const signOutButton = screen.getByText('Sign out');
     await user.click(signOutButton);
-    
-    expect(mockAuthContext.logout).toHaveBeenCalledOnce();
+
+    expect(mockLogout).toHaveBeenCalledOnce();
   });
 
   it('handles logout error gracefully', async () => {
@@ -106,7 +104,7 @@ describe('Header', () => {
     const logoutError = new Error('Logout failed');
     
     // Mock logout to throw an error
-    mockAuthContext.logout.mockRejectedValueOnce(logoutError);
+    mockLogout.mockRejectedValueOnce(logoutError);
     
     // Mock console.error for this specific test
     const consoleSpy = vi.spyOn(console, 'error').mockImplementation(() => {});
@@ -118,7 +116,7 @@ describe('Header', () => {
     
     // Wait for the async operation to complete
     await waitFor(() => {
-      expect(mockAuthContext.logout).toHaveBeenCalledOnce();
+      expect(mockLogout).toHaveBeenCalledOnce();
       expect(consoleSpy).toHaveBeenCalledWith('Logout failed:', logoutError);
     });
     
@@ -157,30 +155,18 @@ describe('Header', () => {
   });
 
   it('handles user with different name initial', () => {
-    // Update the mock context before rendering
-    mockAuthContext.user = { name: 'Alice Smith', email: 'alice@example.com' };
+    // Create a new mock context with different user
+    const aliceUser = { name: 'Alice Smith', email: 'alice@example.com' };
+    mockUseAuth.mockReturnValue(createMockAuthContext(aliceUser));
     
-    render(
-      <BrowserRouter>
-        <AuthProvider value={mockAuthContext}>
-          <Header />
-        </AuthProvider>
-      </BrowserRouter>
-    );
+    renderHeader();
     expect(screen.getByText('A')).toBeInTheDocument();
     expect(screen.getByText('Alice Smith')).toBeInTheDocument();
   });
 
   it('handles empty user name gracefully', () => {
-    const mockAuthContextWithNoName = {
-      ...mockAuthContext,
-      user: { ...mockUser, name: '' }
-    };
-
-    vi.doMock('../../contexts/AuthContext', () => ({
-      useAuth: () => mockAuthContextWithNoName,
-      AuthProvider: ({ children }: { children: React.ReactNode }) => <>{children}</>
-    }));
+    const emptyNameUser = { ...mockUser, name: '' };
+    mockUseAuth.mockReturnValue(createMockAuthContext(emptyNameUser));
 
     renderHeader();
     
@@ -203,6 +189,6 @@ describe('Header', () => {
     signOutButton.focus();
     await user.keyboard('{Enter}');
     
-    expect(mockAuthContext.logout).toHaveBeenCalledOnce();
+    expect(mockLogout).toHaveBeenCalledOnce();
   });
 });

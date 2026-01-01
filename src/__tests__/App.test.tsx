@@ -4,11 +4,11 @@ import { render } from '../test/test-utils';
 import App from '../App';
 
 // Mock the child components to avoid complex rendering
-vi.mock('../../pages/Login', () => ({
+vi.mock('../pages/Login', () => ({
   default: () => <div data-testid="login-page">Login Page</div>,
 }));
 
-vi.mock('../../pages/Dashboard', () => ({
+vi.mock('../pages/Dashboard', () => ({
   default: () => <div data-testid="dashboard-page">Dashboard Page</div>,
 }));
 

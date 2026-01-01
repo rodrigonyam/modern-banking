@@ -42,7 +42,7 @@ const Dashboard: React.FC = () => {
   };
 
   return (
-    <div className="p-6">
+    <div className="p-6" data-testid="dashboard-page">
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">
           Welcome back, {user?.name?.split(' ')[0]}!
