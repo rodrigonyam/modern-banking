@@ -35,7 +35,7 @@ describe('Login', () => {
     render(<Login />);
     
     expect(screen.getByText('Welcome to SecureBank')).toBeInTheDocument();
-    expect(screen.getByLabelText('Email')).toBeInTheDocument();
+    expect(screen.getByLabelText('Email Address')).toBeInTheDocument();
     expect(screen.getByLabelText('Password')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /sign in/i })).toBeInTheDocument();
   });
@@ -52,7 +52,7 @@ describe('Login', () => {
     
     render(<Login />);
     
-    await user.type(screen.getByLabelText('Email'), 'demo@bank.com');
+    await user.type(screen.getByLabelText('Email Address'), 'demo@bank.com');
     await user.type(screen.getByLabelText('Password'), 'demo123');
     await user.click(screen.getByRole('button', { name: /sign in/i }));
     
@@ -73,7 +73,7 @@ describe('Login', () => {
   it('displays validation error for invalid email', async () => {
     render(<Login />);
     
-    await user.type(screen.getByLabelText('Email'), 'invalid-email');
+    await user.type(screen.getByLabelText('Email Address'), 'invalid-email');
     await user.type(screen.getByLabelText('Password'), 'password123');
     await user.click(screen.getByRole('button', { name: /sign in/i }));
     
@@ -85,7 +85,7 @@ describe('Login', () => {
   it('displays validation error for short password', async () => {
     render(<Login />);
     
-    await user.type(screen.getByLabelText('Email'), 'test@example.com');
+    await user.type(screen.getByLabelText('Email Address'), 'test@example.com');
     await user.type(screen.getByLabelText('Password'), '123');
     await user.click(screen.getByRole('button', { name: /sign in/i }));
     
@@ -102,7 +102,7 @@ describe('Login', () => {
     
     render(<Login />);
     
-    await user.type(screen.getByLabelText('Email'), 'wrong@example.com');
+    await user.type(screen.getByLabelText('Email Address'), 'wrong@example.com');
     await user.type(screen.getByLabelText('Password'), 'wrongpass');
     await user.click(screen.getByRole('button', { name: /sign in/i }));
     
@@ -114,7 +114,7 @@ describe('Login', () => {
   it('fills demo credentials when demo button is clicked', async () => {
     render(<Login />);
     
-    await user.click(screen.getByRole('button', { name: /use demo account/i }));
+    await user.click(screen.getByRole('button', { name: /Demo User: demo@bank.com \/ demo123/i }));
     
     expect(screen.getByDisplayValue('demo@bank.com')).toBeInTheDocument();
     expect(screen.getByDisplayValue('demo123')).toBeInTheDocument();
@@ -125,7 +125,7 @@ describe('Login', () => {
     
     render(<Login />);
     
-    expect(screen.getByText('Signing in...')).toBeInTheDocument();
+    expect(screen.getByText('Signing In...')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: /signing in/i })).toBeDisabled();
   });
 });
